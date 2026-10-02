@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Counting chess positions</title>
+  <meta name="description" content="An exact upper bound on the number of chess positions, built factor by factor, with an interactive board.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♞</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="src/app.js"></script>
+</head>
+<body>
+  <nav class="topbar" aria-label="Sections">
+    <a class="brand" href="#top">Counting chess positions</a>
+    <ul class="nav-links">
+      <li><a href="#explore">Explore</a></li>
+      <li><a href="#game">Your game</a></li>
+      <li><a href="#combos">Piece combinations</a></li>
+    </ul>
+    <label class="game-picker">Game <select id="game-select" aria-label="Choose a game"></select></label>
+  </nav>
+  <header class="intro" id="top">
+    <h1>How many ways can a chessboard be set?</h1>
+    <p class="lede">An exact upper bound on the number of chess positions, built from four counting steps. Hover over, tap or click any part of the formula to see what it counts on the board.</p>
+    <p class="headline" id="headline"></p>
+  </header>
+
+  <main>
+    <section class="formula-section" aria-labelledby="formula-title">
+      <h2 id="formula-title" class="visually-hidden">The formula</h2>
+      <div class="formula" id="formula" aria-live="polite">
+        <noscript>This page needs JavaScript to draw the formula and the board.</noscript>
+      </div>
+      <div class="term-buttons" id="term-buttons" role="tablist" aria-label="Parts of the formula"></div>
+      <div class="term-tip" id="term-tip" role="tooltip" hidden></div>
+    </section>
+
+    <section class="explorer" id="explore" aria-labelledby="explorer-title">
+      <h2 id="explorer-title" class="visually-hidden">Explore one material</h2>
+      <div class="board-column">
+        <div class="board-wrap">
+          <svg id="board" viewBox="0 0 400 400" role="img" aria-label="Chessboard showing a sample position"></svg>
+        </div>
+        <div class="board-actions">
+          <button type="button" id="shuffle">Shuffle the position</button>
+          <span class="hint" id="board-caption"></span>
+        </div>
+      </div>
+
+      <div class="explain-column">
+        <article class="term-explainer" id="explainer"></article>
+        <div class="product" id="product" aria-live="polite"></div>
+
+        <div class="material" id="material">
+          <div class="material-head">
+            <h3>Material on the board</h3>
+            <div class="presets">
+              <button type="button" data-preset="start">Starting armies</button>
+              <button type="button" data-preset="half">Half the material</button>
+              <button type="button" data-preset="random">Random</button>
+            </div>
+          </div>
+          <div class="sides" id="sides"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="game" id="game" aria-labelledby="game-title">
+      <h2 id="game-title">Design a different game</h2>
+      <p>What if chess had more piece types, more copies of each, or a different board? Change anything below and the whole page, including the formula, the board and the totals, recalculates for your game.</p>
+      <div class="game-presets" id="game-presets"></div>
+      <div class="game-layout">
+        <div class="game-editor">
+          <div class="game-board-fields">
+            <label>Ranks <input type="number" id="g-rows" min="3" max="12"></label>
+            <label>Files <input type="number" id="g-cols" min="3" max="12"></label>
+            <label>Pawns per side <input type="number" id="g-pawns" min="0" max="16"></label>
+          </div>
+          <div class="table-scroll">
+          <table class="piece-table">
+            <thead><tr><th>Letter</th><th>Piece</th><th>Per side</th><th>Pawns promote to it</th><th><span class="visually-hidden">Remove</span></th></tr></thead>
+            <tbody id="g-pieces"></tbody>
+          </table>
+          </div>
+          <button type="button" id="g-add">Add a piece type</button>
+          <p class="hint">Each side always has one king. Pawns can stand on any square except the first and last ranks.</p>
+          <p class="error" id="g-error" role="alert"></p>
+        </div>
+        <div class="game-result" id="game-result" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="combos" id="combos" aria-labelledby="combos-title">
+      <h2 id="combos-title">Choosing which pieces are left</h2>
+      <p>Before any squares are chosen, the bound needs to know which pieces can still be on the board. Ignore kings, pawns and promotions for a moment. Each column below is one kind of piece in the current game, for both colours. Click a cell to choose how many of that piece remain; click the top kept cell again to remove one.</p>
+
+      <div class="formula small combo-formula-wrap" id="combo-formula"></div>
+      <div class="combo-layout">
+        <div>
+          <div class="combo-actions">
+            <button type="button" id="combo-all">Keep everything</button>
+            <button type="button" id="combo-none">Remove everything</button>
+          </div>
+          <div class="skyline" id="skyline"></div>
+          <p class="combo-readout" id="combo-readout" aria-live="polite"></p>
+        </div>
+        <div class="combo-math">
+          <div id="combo-levels"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>By Aaron Liftig. <a href="https://github.com/AaronLiftig/ChessUpperBound">Source on GitHub</a></p>
+  </footer>
+</body>
+</html>

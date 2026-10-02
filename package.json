@@ -1,0 +1,12 @@
+{
+  "name": "chess-upper-bound",
+  "version": "2.0.0",
+  "description": "An exact upper bound on the number of chess positions, with an interactive visualization.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/counting.test.js",
+    "start": "python3 -m http.server 8000"
+  },
+  "engines": { "node": ">=18" }
+}
